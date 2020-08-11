@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+
+    <!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous"> -->
+
+    <!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js" -->
+        <!-- integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script> -->
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <script src="./js/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>品牌案例</title>
+</head>
+
+<body>
+    <div id="app">
+
+        <div class="panel panel-primary">
+            <!-- panel-heading为面板的标题 -->
+            <div class="panel-heading">
+                <!-- 带有title的面板标题 -->
+                <h3 class="panel-title">添加品牌</h3>
+            </div>
+            <div class="panel-body form-inline">
+                <label>
+                    Id:
+                    <input type="text" class="form-control" v-model="id"> <!-- form-control为input定义了样式 -->
+                </label>
+                <label>
+                    Name:
+                    <!-- 这里的绑定@keyup键盘抬起事件，当按下Enter回车键后出发添加事件add -->
+                    <!-- @keyup.后面可以跟enter,tab,delete,esc,space,up,down,left,right，也可以跟键盘码 -->
+                    <!-- <input type="text" class="form-control" v-model='name' @keyup.enter = "add"> -->
+                    <input type="text" class="form-control" v-model='name' @keyup.f2="add">
+                </label>
+                <input type="button" value="添加" class="btn btn-primay" @click="add()">
+                <label>
+                    搜索名称关键字:
+                    <input type="text" class="form-control" v-model='keywords' v-focus id="Search">
+                </label>
+            </div>
+        </div>
+
+        <!-- table-bordered为表格添加边框 -->
+        <!-- table-hover 鼠标移上有效果 -->
+        <!-- able-striped 斑马线表格 -->
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Ctime</th>
+                    <th v-color="'pink'">Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 之前, v-for中的数据，都是直接从data上的list中直接渲染过来额的 -->
+                <!-- <tr v-for="item in list" :key=item.id> -->
+                <!-- 现在， 自定义一个search方法，同时把所有关键字，通过传参的形式，传递给search方法 -->
+                <!-- 在search方法内部通过for吧所有符号关键字保存到一个新数组中，返回 -->
+                <tr v-for="item in search(keywords)" :key=item.id>
+                    <td v-text='item.id'></td>
+                    <td v-text='item.name'></td>
+                    <td>{{ item.Ctime | dateFormat('yy-mm-dd') }}</td>
+                    <td>
+                        <a href="" @click.prevent="del(item.id)">删除</a> <!-- 阻止其默认行为 -->
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="/js/vue.js"></script>
+    <script>
+
+        // 全局的过滤器, 所谓的全局过滤器就是全局都可以共享
+        Vue.filter('dateFormat', function (dateStr, pattern) {
+            // 根据给定的时间字符串，得到特定的时间
+            var dt = new Date(dateStr)
+
+            // 将4:2:3 补充为4:02:03
+            // String.padStart(补充的位数，补充哪个数) padStart从前面补，padEnd从后面补
+            var y = dt.getFullYear().toString().padStart(2, '0')
+            var m = (dt.getMonth() + 1).toString().padStart(2, '0')  // 因为从零开始所以加1
+            var d = dt.getDate().toString().padStart(2, '0')
+
+            // return y + '-' + m + '-' + d
+
+
+            if (pattern.toLowerCase() === 'yyy-mm-dd') {   // toLowerCase() 用于把字符串转化为小写
+                return `${y}-${m}-${d}`
+            } else {
+                var hh = dt.getHours().toString().padStart(2, '0')
+                var mm = dt.getMinutes().toString().padStart(2, '0')
+                var ss = dt.getSeconds().toString().padStart(2, '0')
+                return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
+            }
+        })
+
+        // 自定义全局案件修饰符
+        Vue.config.keyCodes.f2 = 113
+
+        // 前言：利用原生的JS来写 document.getElementById('Search').focus() 这样刷新之后输入框自动触发点击
+        // 用Vue来写的话，就得定义全局指令Vue.directive()   如定义: v-focus
+        Vue.directive('focus', {   // directive和过滤器的filter类似，全局不加s，局部加s，局部指的是vm的作用域的局部
+            bind: function (el) {   // 这里的el 表示js原生封装的对象
+                // 每当指令绑定到这个元素上的时候，会立即执行这个bind函数，只执行一次
+                // 因为，一个元素只有插入DOM之后才能获取焦点，所以 el.focus() 不成功
+            },
+            inserted: function (el) {
+                // inserted 表示元素插入到DOM中的时候，会执行inserted函数，【只触发一次】
+                el.focus()
+            },
+            updated: function (el) {
+                // 当VNode更新的时候，会执行update，可能会触发多次
+            },
+
+        })
+
+        // 自定义一个设置字体颜色的指令
+        Vue.directive('color', {           // 可以和 filter一样，可以写进vm的局部里面去
+            bind: function (el, binding) {
+                el.style.color = binding.value
+            },
+            // 简写写法，相当于把 
+            // 'fontSize': function (el){
+            //     el.style.fontSize = parseInt(binding.value) + 'px'
+            // }
+        })
+
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                id: '',
+                name: '',
+                keywords: '',
+                list: [
+                    { id: 1, name: '奔驰', Ctime: new Date() },    // new Data() 表示时间
+                    { id: 2, name: '宝马', Ctime: new Date() },
+                ]
+            },
+            methods: {
+                add() {
+                    var newList = this.list.push({ id: this.id, name: this.name, Ctime: new Date() })
+                },
+                del(id) {
+
+                    // 删除的第一种方法
+                    // some(value,index,array)  看是否满足()内条件之一，满足就返回true
+                    // this.list.some( (item, i)=> {   // some方法就是看数组中是否有满足(item, i)的任意条件的，满足的话就返回true
+                    //     if (item.id == id){
+                    //         this.list.splice(i, 1)
+                    //         return true;
+                    //     }
+                    // })
+
+                    // 删除的第二种方法, 将被选中的ID进行返回
+                    var index = this.list.findIndex(item => {
+                        if (item.id == id) {
+                            return true;
+                        }
+                    })
+                    this.list.splice(index, 1)
+                },
+                search(keywords) {
+
+                    // 第一种搜索的方法：forEach和indexOf一块实现
+                    // var newListss = []
+                    // this.list.forEach(item => {
+                    // 如果不等于-1就说明包含在里面
+                    // if (item.name.indexOf(keywords) != -1){   // 看index.name中是否包含keywords
+                    //    newListss.push(item)
+                    //     }
+                    // });
+                    // return newListss
+
+                    // 第二种搜索的方式：filter和include的方式
+                    // forEach, some, filter, findIndex 这些都属于数组的新方法
+                    // 都会对数组中的每一项进行遍历进行操作
+                    var newListss = this.list.filter(item => {
+
+                        // ES6 中字符串提供了一个新方法，叫做String.prototype.include('要包含的字符串')
+                        // 如果包含，则返回true，否则返回false
+                        if (item.name.includes(keywords)) {
+                            return item
+                        }
+                    })
+                    return newListss
+                }
+            },
+        })   
+    </script>
+</body>
+
+</html>

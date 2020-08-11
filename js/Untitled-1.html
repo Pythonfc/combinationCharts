@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/vue.js"></script>
+    <title>品牌案例</title>
+</head>
+<body>
+    <div id="app">
+
+        <div class="panel panel-primary">
+            <!-- panel-heading为面板的标题 -->
+            <div class="panel-heading">
+                <!-- 带有title的面板标题 -->
+                <h3 class="panel-title">添加品牌</h3>
+            </div>
+            <div class="panel-body form-inline">
+                <label>
+                    Id:
+                    <input type="text" class="form-control" v-model="id">  <!-- form-control为input定义了样式 -->
+                </label>
+                
+                <label>
+                    Name:
+                    <!-- 这里的绑定@keyup键盘抬起事件，当按下Enter回车键后出发添加事件add -->
+                    <!-- @keyup.后面可以跟enter,tab,delete,esc,space,up,down,left,right，也可以跟键盘码 -->
+                    <!-- <input type="text" class="form-control" v-model='name' @keyup.enter = "add"> -->
+                    <input type="text" class="form-control" v-model='name' @keyup.f2 = "add">
+                </label>
+                <input type="button" value="添加" class="btn btn-primay" @click="add()">
+                <label>
+                    搜索名称关键字:
+                    <input type="text" class="form-control" v-model='keywords' v-focus id="Search">
+                </label> 
+            </div>
+        </div>
+
+        <!-- table-bordered为表格添加边框 -->
+        <!-- table-hover 鼠标移上有效果 -->
+        <!-- able-striped 斑马线表格 -->
+        <table class="table table-bordered table-hover table-striped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Ctime</th>
+                    <th v-color = "'pink'">Operation</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 之前, v-for中的数据，都是直接从data上的list中直接渲染过来额的 -->
+                <!-- <tr v-for="item in list" :key=item.id> -->
+                <!-- 现在， 自定义一个search方法，同时把所有关键字，通过传参的形式，传递给search方法 -->
+                <!-- 在search方法内部通过for吧所有符号关键字保存到一个新数组中，返回 -->
+                <tr v-for="item in search(keywords)" :key=item.id>
+                    <td v-text='item.id'></td>
+                    <td v-text='item.name'></td>
+                    <td>{{ item.Ctime | dateFormat('yy-mm-dd') }}</td>
+                    <td> 
+                        <a href="" @click.prevent="del(item.id)">删除</a>   <!-- 阻止其默认行为 -->
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script src="/js/vue.js"></script>
+</body>
+</html>

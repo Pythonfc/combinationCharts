@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://s.thsi.cn/js/datav/charts/latest/d3_charts.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div style="width:950px;height:443px;background:#fff;transform: translate(-6%, 0%);" id="chart3"></div>
+    <script>
+        var option;
+        option = {
+            "axis": [
+                // 底部坐标
+                {
+                    "position": "bottom",          // 控制柱状图朝上还是朝下的
+                    "$dataIndex": 0,               // 当$dataIndex为0时，取的是data数据源中的第一份数据
+                    "dataKey": 0,                  // 取对象key值
+                    "barGap": "50%",
+                    "gridIndex": 9,
+                    "paddingInner": "64%",          // 控制蓝色柱状宽度
+                    "paddingOuter": "40%",          // 边距离
+                    "intervalLength": 45,          // 坐标轴间隔宽度，仅支持band或point类型坐标轴(axis), 坐标轴宽度
+                    // 坐标轴刻度
+                    "tick": {
+                        "show": false,              // 是否显示坐标轴刻度
+                        "outerSize": 6,
+                        "innerSize": 0,
+                        "style": {
+                            "lineWidth": 1,          // 线宽
+                            "stroke": "rgba(51, 51, 51, 0.1)"
+                        }
+                    },
+                    // 下划线
+                    "line": {
+                        "show": true,
+                        "style": {
+                            "stroke": "rgba(0, 0, 0, 0.1)",
+                            "lineWidth": 2
+                        }
+                    },
+                    // 控制底下月份按钮----底部
+                    "label": {
+                        "show": true,
+                        "padding": 10,
+                        "style": {
+                            "fill": "#000000",
+                            "fontSize": 13
+                        }
+                    },
+                    // 柱状图中间分割线
+                    "splitLine": {
+                        "show": false,
+                        "style": {
+                            "color": "rgba(51, 51, 51, 0.1)",
+                            "lineWidth": 1
+                        }
+                    },
+                    // 柱状图阴影
+                    "splitArea": {
+                        "show": false,
+                        "style": {
+                            "color": [
+                                "rgba(51, 51, 51, 0.05)",
+                                "rgba(0, 0, 0, 0)"
+                            ]
+                        }
+                    },
+                    "name": {
+                        "show": false,
+                        "text": "",
+                        "offset": [
+                            0,
+                            0
+                        ],
+                        "location": "end",
+                        "gap": 10,
+                        "style": {
+                            "fontSize": 12,
+                            "fill": "rgba(51, 51, 51, 0.4)"
+                        }
+                    }
+                },
+
+                // 右坐标
+                {
+                    "position": "right",             // 控制数字左边右边
+                    "type": "linear",
+                    "xOrY": "y",
+                    "min": 0,
+                    "max": 60000,                  // 最大纵坐标
+                    "nice": true,
+                    "splitNumber": 6,               // 纵坐标个数
+                    "tick": {
+                        "show": false,
+                        "outerSize": 6,
+                        "innerSize": 0,
+                        "style": {
+                            "lineWidth": 1,
+                            "stroke": "rgba(51, 51, 51, 0.1)"
+                        }
+                    },
+                    // 纵坐标线
+                    "line": {
+                        "show": false,
+                        "style": {
+                            "stroke": "rgba(0, 0, 0, 0.1)",
+                            "lineWidth": 1
+                        }
+                    },
+                    // 纵坐标数字---右
+                    "label": {
+                        "show": true,
+                        "padding": 10,
+                        "style": {
+                            "fill": "#000000",
+                            "fontSize": 12
+                        }
+                    },
+                },
+
+                // 左坐标
+                {
+                    "position": "left",             // 控制数字左边右边
+                    "type": "linear",
+                    "xOrY": "y",
+                    "min": 0,
+                    "max": 450000,                  // 最大纵坐标
+                    "splitNumber": 9,               // 纵坐标个数
+                    "tick": {
+                        "show": false,
+                        "outerSize": 6,
+                        "innerSize": 0,
+                        "style": {
+                            "lineWidth": 1,
+                            "stroke": "rgba(51, 51, 51, 0.1)"
+                        }
+                    },
+                    // 纵坐标线
+                    "line": {
+                        "show": false,
+                        "style": {
+                            "stroke": "rgba(0, 0, 0, 0.1)",
+                            "lineWidth": 1
+                        }
+                    },
+                    // 纵坐标数字
+                    "label": {
+                        "show": true,
+                        "padding": 10,
+                        "style": {
+                            "fill": "#000000",
+                            "fontSize": 12
+                        }
+                    },
+                    // 横的坐标线
+                    "splitLine": {
+                        "show": false,
+                        "style": {
+                            "color": "rgba(0, 0, 0, 0.1)",
+                            "lineWidth": 1
+                        }
+                    },
+                    "splitArea": {
+                        "show": false,
+                        "style": {
+                            "color": [
+                                "rgba(51, 51, 51, 0.05)",
+                                "rgba(0, 0, 0, 0)"
+                            ]
+                        }
+                    },
+                    "name": {
+                        "show": false,
+                        "text": "",
+                        "offset": [
+                            0,
+                            0
+                        ],
+                        "location": "end",
+                        "gap": 10,
+                        "style": {
+                            "fontSize": 12,
+                            "fill": "rgba(51, 51, 51, 0.4)"
+                        }
+                    }
+                }
+            ],
+            // 对柱状图和折线进行标注
+            "legend": [
+                {
+                    "show": true,
+                    "data": [
+                        "活动访问量",
+                        "总收入"
+                    ],
+                    "left": "48%",
+                    "top": "80%",
+                }
+            ],
+            "grid": [
+                {
+                    "top": "8%",    // 原值32   值越小图形越高
+                    "left": "16%",   // 原值 16 值越小图形越宽
+                    "right": "10%",
+                    "bottom": "30%"
+                }
+            ],
+            // 触碰后弹出bar窗口
+            "series": [
+                // 柱状图
+                {
+                    "type": "bar",
+                    "$dataIndex": 0,                // 当索引值为0的时候取data数据中的第一份数据
+                    "dataKey": 1,
+                    "name": "活动访问量",
+                    "$axisIndex": [0, 2],           // [0, 2]代表左坐标，因为他在第三个
+                    "itemStyle": {
+                        "normal": {
+                            "fill": "#5a9bd3"
+                        }
+                    }
+                },
+                // 折线图
+                {
+                    type: "line",
+                    $dataIndex: 1,
+                    dataKey: 1,
+                    $axisIndex: [0, 1],
+                    // relyOtherAxis: true,
+                    name: "总收入",
+                    // 设置折线图平滑
+                    curve: {
+                        type: 'natural'
+                    },
+                    line: {
+                        show: true,
+                        style: {
+                            normal: {
+                                stroke: '#d0895b',
+                                lineWidth: 2
+                            }
+                        }
+                    },
+                    // 圆点
+                    // symbol: {
+                    //     normal: {
+                    //         show: 'all',
+                    //         size: 8,
+                    //         style: {
+                    //             fill: '#fff',
+                    //             stroke: '#2DCDCD',
+                    //             lineWidth: 2
+                    //         }
+                    //     },
+                    //     emphasis: {
+                    //         show: true,
+                    //         style: {
+                    //             fill: '#2DCDCD',
+                    //             stroke: '#2DCDCD',
+                    //             lineWidth: 2
+                    //         }
+                    //     }
+                    // },
+                    // 折线图阴影
+                    // area: {
+                    //     "show": true,
+                    //     "style": {
+                    //         "normal": {
+                    //             // "fill": "rgba(46, 150, 255, 0.4)",
+                    //             "fill": "#dddddd",
+                    //             "opacity": 0.4
+                    //         }
+                    //     }
+                    // },
+                }
+            ],
+
+            "data": [
+                // 活动访问量---data
+                {
+                    "originData": [
+                        [
+                            "2020/6/1",
+                            100000
+                        ],
+                        [
+                            "2020/6/2",
+                            125000
+                        ],
+                        [
+                            "2020/6/3",
+                            260000
+                        ],
+                        [
+                            "2020/6/4",
+                            350000
+                        ],
+                        [
+                            "2020/6/5",
+                            400000
+                        ],
+                        [
+                            "2020/6/6",
+                            200000
+                        ],
+                        [
+                            "2020/6/7",
+                            215000
+                        ],
+                        [
+                            "2020/6/8",
+                            235000
+                        ],
+                        [
+                            "2020/6/9",
+                            250000
+                        ]
+                    ]
+                },
+                // 总收入----data
+                {
+                    "originData": [
+                        [
+                            "2020/6/1",
+                            10000
+                        ],
+                        [
+                            "2020/6/2",
+                            15000
+                        ],
+                        [
+                            "2020/6/3",
+                            30000
+                        ],
+                        [
+                            "2020/6/4",
+                            41000
+                        ],
+                        [
+                            "2020/6/5",
+                            49000
+                        ],
+                        [
+                            "2020/6/6",
+                            23000
+                        ],
+                        [
+                            "2020/6/7",
+                            25000
+                        ],
+                        [
+                            "2020/6/8",
+                            27000
+                        ],
+                        [
+                            "2020/6/9",
+                            25000
+                        ]
+                    ]
+                }
+            ],
+            "tooltip": [
+                {
+                    "trigger": "axis",
+                    "$axisIndex": 0,
+                    "style": {
+                        "backgroundColor": "rgba(57,93,129,0.6)"
+                    }
+                }
+            ],
+            "axisPointer": [
+                {
+                    "$axisIndex": 0,
+                    "shadow": {
+                        "show": true,                           // 手指触碰柱状图之后的阴影
+                        "style": {
+                            "fill": "rgba(57,93,129,0.1)"
+                        }
+                    },
+                    "line": {
+                        "show": false                  //手指触碰之后的阴影中线
+                    },
+                    "label": {
+                        "show": true,
+                        "style": {
+                            fill: '#2F97FF',
+                            "textBackgroundColor": "rgba(255,255,255,1)",
+                            fontWeight: 460,
+                            fontSize: 13
+                        }
+                    }
+                }
+            ],
+            "textStyle": {
+                "color": "#9B9B9B",
+                "fontFamily": "SFUIText-Regular"
+            }
+        }
+        var myChart = D3Charts.init("chart3");
+        myChart.setOption(option);
+    </script>
+</body>
+</html>
